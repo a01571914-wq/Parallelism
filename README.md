@@ -34,10 +34,10 @@ gcc pi_parallel.c -o pi_parallel
 ### Elixir Programs
 
 ```bash
-iex prime_sum_sequential.exs
-iex prime_sum_parallel.exs
-iex pi_sequential.exs
-iex pi_parallel.exs
+iex prime_sum_sequential.ex
+iex prime_sum_parallel.ex
+iex pi_sequential.ex
+iex pi_parallel.ex
 ```
 
 **Then call functions directly from the iex shell:**
@@ -76,44 +76,43 @@ Tests run, n = 1,000,000.
 
 | Threads | Time (s) | Speedup |
 |---|---|---|
-| 1 (sequential) | 1.623 | 1.00x |
-| 2 | 0.834 | 1.95x |
-| 4 | 0.412 | 3.94x |
-| 8 | 0.389 | 4.17x |
+| 1 (sequential) | 0.22 | 1.00 |
+| 2 | 0.16 | 1.38 |
+| 4 | 0.11 | 2.00 |
+| 8 | 0.09 | 2.44 |
 
 ### Sum of Primes — Elixir
 
 | Threads | Time (s) | Speedup |
 |---|---|---|
-| 1 (sequential) | 3.21 | 1.00x |
-| 2 | 1.68 | 1.91x |
-| 4 | 0.89 | 3.61x |
-| 8 | 0.81 | 3.96x |
+| 1 (sequential) | 1.02 | 1.00 |
+| 2 | 0.69 | 1.48 |
+| 4 | 0.39 | 2.62 |
+| 8 | 0.29 | 3.52 |
 
 ### Numerical Integration pi — C
 
 | Threads | Time (s) | Speedup |
 |---|---|---|
-| 1 (sequential) | 0.008 | 1.00x |
-| 2 | 0.005 | 1.60x |
-| 4 | 0.003 | 2.67x |
-| 8 | 0.003 | 2.67x |
+| 1 (sequential) | 0.029 | 1.00 |
+| 2 | 0.016 | 1.81 |
+| 4 | 0.0077 | 3.77 |
+| 8 | 0.0049 | 5.90 |
 
 ### Numerical Integration pi — Elixir
 
 | Threads | Time (s) | Speedup |
 |---|---|---|
-| 1 (sequential) | 0.21 | 1.00x |
-| 2 | 0.12 | 1.75x |
-| 4 | 0.07 | 3.00x |
-| 8 | 0.06 | 3.50x |
+| 1 (sequential) | 0.13 | 1.00 |
+| 2 | 0.06 | 2.16 |
+| 4 | 0.03 | 4.30 |
+| 8 | 0.03 | 4.33 |
 
 ### Analysis
 
-**Near-linear speedup with 4 threads** was observed for the primes problem in both languages, since checking primality is CPU-intensive and each number is independent.
+**The Sum of Primes problem** shows a clear improvement as the number of threads increases in both languages. Since each number can be tested independently, the workload is highly parallelizable. Elixir achieves a higher relative speedup (3.52× with 8 threads) than C (2.44×), although C remains much faster in absolute execution time.
 
-**The π integration** shows diminishing returns faster because the computation per rectangle is very simple — the overhead of thread creation and synchronization becomes significant relative to the actual work.
+**The Numerical Integration of pi** scales very efficiently in C, reaching a speedup of approximately 5.92× with 8 threads. This indicates that the workload is evenly distributed among threads and that synchronization costs are relatively low.
 
-**Going from 4 to 8 threads** produces minimal improvement. This is consistent with Amdahl's Law: the sequential fraction of the program (thread setup, mutex locking, result collection) limits the maximum achievable speedup regardless of how many cores are added.
+**In Elixir, the pi integration** scales well up to 4 threads (4.33× speedup), but no additional improvement is observed with 8 threads. This suggests that runtime overhead, scheduling costs, or hardware limitations become the dominant factors beyond 4 threads.
 
-**C vs Elixir:** C is consistently faster in absolute time due to lower overhead, but both languages achieve similar relative speedups, confirming that the parallelization strategy is equally effective in both.
